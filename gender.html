@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ternary Gender</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+        .results {
+            font-family: Helvetica;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <svg id="ternary" width="200px" height="200px">
+        <defs>
+            <linearGradient id="blue" x1="0%" y1="0%" x2="75%" y2="43.3013%">
+                <stop offset="0%" stop-color="#5c5ce5" />
+                <stop offset="100%" style="stop-color: #5c5ce5; stop-opacity: 0" />
+            </linearGradient>
+            <linearGradient id="red" x1="100%" y1="0%" x2="25%" y2="43.3013%">
+                <stop offset="0%" stop-color="#e55c5c" />
+                <stop offset="100%" style="stop-color: #e55c5c; stop-opacity: 0" />
+            </linearGradient>
+        </defs>
+        <polygon points="0,0 100,173.2051 200,0" fill="#8a8a8a" />
+        <polygon points="0,0 100,173.2051 200,0" fill="url(#blue)" />
+        <polygon points="0,0 100,173.2051 200,0" fill="url(#red)" />
+        <circle id="point" r=3 fill="#000000" visibility="hidden" />
+        <text id="M" class="results" x=10 y=130 visibility="hidden"></text>
+        <text id="F" class="results" x=10 y=150 visibility="hidden"></text>
+        <text id="N" class="results" x=10 y=170 visibility="hidden"></text>
+    </svg>
+    <script type="text/javascript">
+        function deCartesian(coords) {
+            var scale = 200;
+            return [-coords[0] / scale - coords[1] / scale / 1.7320508075688772 + 1,
+                    coords[0] / scale - coords[1] / scale / 1.7320508075688772,
+                    coords[1] / scale * 1.1547005383792517];
+        }
+        function copy_to_clipboard(text) {
+            var dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+        }
+        var svg = d3.select("#ternary")
+        svg.on("click", function() {
+            var coords = d3.mouse(this);
+            var gender = deCartesian(coords);
+            if (gender[0] >= 0 && gender[1] >= 0 && gender[2] >= 0) {
+                d3.select("#point")
+                  .attr("visibility", "visible")
+                  .attr("cx", coords[0])
+                  .attr("cy", coords[1]);
+                d3.select("#M")
+                   .attr("visibility", "visible")
+                   .text("M: " + Math.round(gender[0] * 100) + "%");
+                d3.select("#F")
+                  .attr("visibility", "visible")
+                  .text("F: " + Math.round(gender[1] * 100) + "%");
+                d3.select("#N")
+                  .attr("visibility", "visible")
+                  .text("N: " + Math.round(gender[2] * 100) + "%");
+                var date = new Date();
+                var date_string = date.getFullYear() + "-" + ("0" + date.getMonth()).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                var time_string = date.toTimeString().slice(0,5);
+                copy_to_clipboard(date_string + "\t" + time_string + "\t" + gender[0] + "\t" + gender[1] + "\t" + gender[2]);
+            }
+        });
+    </script>
+</body>
+
+</html>
